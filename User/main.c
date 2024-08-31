@@ -18,7 +18,7 @@
    Loading larger values for ccp creates larger active high pulse width
 
 */
-
+#include <ch32v00x.h>
 #include "debug.h"
 
 /* PWM Output Mode Definition */
@@ -104,19 +104,23 @@ void TIM1_PWMOut_Init(u16 arr, u16 psc, u16 ccp)
  */
 int main(void)
 {
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    Delay_Init();
+
     USART_Printf_Init(115200);
     printf("SystemClk:%d\r\n",SystemCoreClock);
 
-    TIM1_PWMOut_Init( 20000, 24-1, 1000 ); // 19.99ms period, 0.999ms high, 1us units for ccp
+    TIM1_PWMOut_Init( 20000, 48-1, 1000 ); // 19.99ms period, 0.999ms high, 1us units for ccp
+    TIM1->CH1CVR = 1000; // 1.0ms
 
     // Read TIM1, CH1CVR value - display value (capture/compare channel 1 register)
     printf("TIM1->CH1CVR: %u\n",TIM1->CH1CVR);
-    //Delay_Ms(5000); // this doesn't delay 5 seconds
-    for(int i=0;i<500000;i++) Delay_Ms(1);
+    Delay_Ms(3000); // delay 3 seconds
+
     TIM1->CH1CVR = 1500; // 1.5ms
     printf("TIM1->CH1CVR: %u\n",TIM1->CH1CVR);
-    //Delay_Ms(5000);
-    for(int i=0;i<500000;i++) Delay_Ms(1);
+    Delay_Ms(3000);
+
     TIM1->CH1CVR = 2000; // 2.0ms
     printf("TIM1->CH1CVR: %u\n",TIM1->CH1CVR);
     while(1);
